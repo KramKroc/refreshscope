@@ -18,5 +18,6 @@ include 'services:webservice'
 include 'config-server'
 include 'discovery-service'
 include 'sample-service'
+include 'apigateway'
 rootProject.name = 'refreshscope'
 
