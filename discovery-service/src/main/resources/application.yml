@@ -1,9 +1,18 @@
+spring:
+  application:
+    name: discoveryservice
 server:
   port: ${PORT:8761}
 
 eureka:
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+    instanceId: ${spring.cloud.client.hostname}:${spring.application.name}
   client:
-    registerWithEureka: false
-    fetchRegistry: false
-  server:
-    waitTimeInMsWhenSyncEmpty: 0
+    registerWithEureka: ${REGISTER_WITH_OTHER_EUREKA_NODES:false}
+    fetchRegistry: ${REGISTER_WITH_OTHER_EUREKA_NODES:false}
+    serviceUrl: 
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    server:
+      waitTimeInMsWhenSyncEmpty: 0
