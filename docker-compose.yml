@@ -1,34 +1,47 @@
-discoveryservice:
-  image: "com.kramkroc/discovery-service"
-  hostname: discoveryservice
-  name: discoveryservice
-  ports:
-   - "8761:8761"
+version: "2"
 
-configserver:
-  image: "com.kramkroc/config-server"
-  hostname: configserver
-  name: configserver
-  restart: always  
-  links:
-    - discoveryservice
-  environment:
-     EUREKA_HOST: discoveryservice
-     EUREKA_PORT: 8761
-  ports:
-    - "8888:8888"
+services:
 
-sampleservice:
-  image: "com.kramkroc/sample-service"
-  hostname: sampleservice
-  name: sampleservice
-  restart: always
-  links:
-    - discoveryservice
-    - configserver
-  environment:
-     EUREKA_HOST: discoveryservice
-     EUREKA_PORT: 8761
-  ports:
-    - "8082:8082"
-  restart: always
+  discoveryservice:
+    image: "com.kramkroc/discovery-service"
+    restart: always
+    hostname: discoveryservice
+    container_name: discoveryservice
+    ports:
+     - "8761:8761"
+
+  configserver:
+    image: "com.kramkroc/config-server"
+    restart: always  
+    depends_on:
+      - discoveryservice
+    environment:
+      EUREKA_URL: "http://discoveryservice:8761/eureka/"
+
+    ports:
+      - "8888:8888"
+
+  apigateway:
+    image: "com.kramkroc/apigateway:latest"
+    restart: always
+    depends_on:
+      - discoveryservice
+      - configserver
+    environment:
+       EUREKA_URL: "http://discoveryservice:8761/eureka/"
+    ports:
+      - "8087:8087"
+
+  sampleservice:
+    image: "com.kramkroc/sample-service"
+    restart: always
+    depends_on:
+      - discoveryservice
+      - configserver
+    environment:
+       EUREKA_URL: "http://discoveryservice:8761/eureka/"
+
+networks:
+  default:
+    external:
+      name: refreshscope
